@@ -1,0 +1,69 @@
+import cotfd;
+
+forall(instance in 1..1)
+{
+	int n = 15;
+	int m = 3;
+	int [] ha = new int[1..n];
+	int [] fa = new int[1..m];
+
+	//Generate randomly expected area of households
+	UniformDistribution ha_dist(100..700);
+	int totalHouseholdArea = 0;
+	forall(i in 1..n)
+	{
+		ha[i] = ha_dist.get();
+		totalHouseholdArea += ha[i];	
+	}
+
+	//Generate ramdomly area of fields
+	int averageFieldArea = totalHouseholdArea/m;
+	int rangeVariant = averageFieldArea/2;
+	UniformDistribution fa_dist(averageFieldArea - rangeVariant..averageFieldArea + rangeVariant);
+
+	int totalFieldArea = 0;
+	forall(i in 1..m)
+	{
+		fa[i] = fa_dist.get();
+		totalFieldArea += fa[i];
+	}
+
+	int diff = totalFieldArea - totalHouseholdArea;
+	int sign = -1;
+	if(diff < 0)
+	{
+		sign = +1;
+	}
+
+	cout << "Diff " << diff << endl;
+
+	UniformDistribution field_select_dist(1..m);
+	while(abs(diff) > 0)
+	{
+		int field = field_select_dist.get();
+		fa[field] += sign;
+
+		diff += sign;
+		cout << "diff : " << diff << endl;
+	}
+
+	cout << "Save to file " << endl;
+	string file = "/Users/buiquoctrung/Dropbox/FieldPartitioningProblem/Codes/PArea/Data/PArea_";
+	file += IntToString(n);
+	file += "_";
+	file += IntToString(m);
+	//file += "_";
+	//file += IntToString(instance);
+	file += ".txt";
+	ofstream fo(file);
+	fo << n	<< " " << m << endl;
+	forall(i in 1..n)
+	{
+		fo << ha[i] << endl;
+	}
+
+	forall(i in 1..m)
+	{
+		fo << fa[i] << endl;
+	}
+}

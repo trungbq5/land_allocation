@@ -1,0 +1,72 @@
+import cotfd;
+
+int MAX_FAR = 10; //Maximum number of farmers in a household
+int MAX_INS = 3; //Maximum instances generated
+int n = 80; // Number of households
+int m = 8; // Number of fields
+int area; //Expected area of a farmer
+forall(ins in 1..MAX_INS)
+{
+   int [] ha = new int[1..n];
+   int [] fa = new int[1..m];
+
+   //Generate randomly area of a farmer
+   UniformDistribution area_dist(100..360);
+   area = area_dist.get();
+   cout << "Area :  " << area << endl;
+   
+   //Generate randomly numbers of farmers in each household  
+   UniformDistribution farmer_number_dist(1..MAX_FAR);
+              
+   int totalHouseholdArea = 0;
+   forall(i in 1..n)
+   {
+      ha[i] = area * farmer_number_dist.get();
+      totalHouseholdArea += ha[i];	
+   }
+
+   //Generate ramdomly area of fields
+   int averageFieldArea = totalHouseholdArea/m;
+   int rangeVariant = averageFieldArea * 2/3;
+   UniformDistribution fa_dist(averageFieldArea - rangeVariant..averageFieldArea + rangeVariant);
+           
+   forall(it in 1..100 )
+   {
+      int totalFieldArea = 0;
+      forall(i in 1..m - 1)
+      {
+         fa[i] = fa_dist.get();
+         totalFieldArea += fa[i];
+      }
+           
+      if(totalHouseholdArea > totalFieldArea){
+         fa[m] = totalHouseholdArea -  totalFieldArea;
+         it = 100;
+      }else{
+         if(it == 100)
+         {
+            it = 1;
+         }
+      }
+   }
+
+   cout << "Save to file " << endl;
+   string file = "/Users/trungnhan/Dropbox/Research/FieldPartitioningProblem/Codes/PArea/Data/NPArea_";
+   file += IntToString(n);
+   file += "_";
+   file += IntToString(m);
+   file += "_";
+   file += IntToString(ins);
+   file += ".txt";
+   ofstream fo(file);
+   fo << n	<< " " << m << endl;
+   forall(i in 1..n)
+   {
+      fo << ha[i] << endl;
+   }
+
+   forall(i in 1..m)
+   {
+      fo << fa[i] << endl;
+   }
+}
